@@ -5,6 +5,7 @@ import csv
 import html
 import re
 import tempfile
+import threading
 import time
 from pathlib import Path
 from typing import Any
@@ -14,6 +15,8 @@ from thesis_redteam.cli import run_case
 HERE = Path(__file__).resolve().parent
 HOLDINGS = list(csv.DictReader((HERE / "kic_holdings_2026Q2.csv").open()))
 BY_TICKER = {row["ticker"].upper(): row for row in HOLDINGS}
+# One run at a time: keeps SEC traffic polite and keeps each report's receipts to its own run.
+RUN_LOCK = threading.Lock()
 
 # Fixed fact claims for the two demo hypotheses (the LLM Planner is not used in the live demo).
 HYPOTHESES = {
@@ -61,10 +64,11 @@ def verify(ticker: str, template: str, asof: str, out_dir: str | None = None) ->
     holding = BY_TICKER.get(ticker)
     out = out_dir or tempfile.mkdtemp(prefix="trt-")
     started = time.perf_counter()
-    _, html_path, report = run_case(
-        ticker=ticker, template=template, asof=asof, offline=False, out_dir=out,
-        cik=holding["cik"] if holding else None, no_prices=True, fact_claims=_claims(ticker, template),
-    )
+    with RUN_LOCK:
+        _, html_path, report = run_case(
+            ticker=ticker, template=template, asof=asof, offline=False, out_dir=out,
+            cik=holding["cik"] if holding else None, no_prices=True, fact_claims=_claims(ticker, template),
+        )
     seconds = time.perf_counter() - started
     hints = {}
     for check in report.get("extra_checks", []):

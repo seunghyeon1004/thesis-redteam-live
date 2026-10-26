@@ -136,6 +136,8 @@ def run_case(
         receipts = _fixture_receipts(case)
     else:
         client = SecClient(cache_dir=Path("cache"), receipts_path=Path("cache") / "receipts.jsonl", offline=False)
+        # The receipts log is shared by every run; a report must only carry rows from its own run.
+        receipt_start = len(_read_receipts(client.receipts_path))
         try:
             cik = str(cik) if cik is not None else _historical_cik(ticker)
             if cik is None:
@@ -184,7 +186,7 @@ def run_case(
                     )
                 # The advisory verifier fetches each input's own primary HTML.
                 # An unavailable document must not abort required claims.
-            receipts = _read_receipts(client.receipts_path)
+            receipts = _read_receipts(client.receipts_path)[receipt_start:]
         except SecNetworkError as error:
             stage_times["fetch_or_fixture"] = (time.perf_counter() - started) * 1000
             stage_times["total"] = (time.perf_counter() - run_started) * 1000
