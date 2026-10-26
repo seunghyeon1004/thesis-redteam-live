@@ -12,7 +12,7 @@ from .verifier import decimal, decimal_string, issuance_notes, require_same_peri
 FACT_CHECKS = {
     'repurchase_positive': ('F1', '기간 중 자사주를 매입했다(프로그램 현금매입; 직원세금원천징수 취득 제외)', ['repurchase']),
     'net_buyback_positive': ('F2', '순자사주 환원이 양수다(매입 > 보통주 발행; 매입프로그램 현금, 직원세금원천징수 제외)', ['repurchase', 'common_issuance']),
-    'shares_decreased': ('F3', '동일 공시의 기말 전체 보통주 주식수가 줄었다(모든 종류 합산; 이후 표지일 제외)', ['shares']),
+    'shares_decreased': ('F3', '최근 회계연도 말 전체 보통주 주식수가 전년 말보다 줄었다(동일 10-K; 모든 종류 합산; 이후 표지일 제외)', ['shares']),
     'net_income_increased': ('F1', '순이익이 증가했다', ['net_income']),
     'cfo_supports_income': ('F2', '영업현금흐름이 이익을 뒷받침한다', ['net_income', 'cfo']),
     'revenue_increased': ('F4', '매출이 증가했다', ['revenue']),
@@ -90,6 +90,27 @@ def _filing_pair(fields: dict, field: str, *, annual: bool = False) -> tuple[dic
         if any(r.get('period_start') is not None or _day(r['period_end']) is None for r in (current, prior)):
             raise ValueError('기말 시점 입력 필요')
     return current, prior
+
+
+def _share_pair(fields: dict, claim: dict) -> tuple[dict, dict]:
+    """Same-filing annual endpoints; explicit TTM uses year-apart instants."""
+    annual = claim.get('horizon') != 'ttm'
+    scoped = dict(fields)
+    rows = _premise_rows(fields, 'shares', comparative=True)
+    scoped.pop('shares_comparative', None)
+    scoped.pop('share_prior_period_end', None)
+    if annual:
+        scoped['shares'] = [r for r in rows if r.get('form') in {'10-K', '10-K/A'}]
+        scoped['share_latest_accession'] = fields.get('share_annual_accession')
+        scoped['share_latest_period_end'] = fields.get('share_annual_period_end')
+    else:
+        scoped['shares'] = rows
+    # Filter the prior before _filing_pair chooses it: notes may also contain
+    # intervening quarters. TTM means a full year, not latest quarter vs FY.
+    current, _ = _filing_pair(scoped, 'shares')
+    scoped['shares'] = [r for r in scoped['shares'] if r['period_end'] == current['period_end']
+        or 350 <= (_day(current['period_end']) - _day(r['period_end'])).days <= 380]
+    return _filing_pair(scoped, 'shares')
 
 
 def _latest_flow(fields: dict, field: str) -> dict:
@@ -193,7 +214,7 @@ def _evaluate_premise(check: str, claim: dict, fields: dict, inputs: dict, outpu
     else:
         threshold = _number(claim.get('threshold') if claim.get('threshold') not in (None, '') else '0')
         if check == 'shares_not_diluting':
-            current, prior = _filing_pair(fields, 'shares')
+            current, prior = _share_pair(fields, claim)
             inputs.update(current=current, prior=prior)
             if (require_same_unit((current, prior)) != 'shares'
                     or any(r.get('tag') != 'CommonStockSharesOutstanding' and r.get('derived') != 'issued - treasury'
@@ -329,6 +350,8 @@ def _scoped_fields(fields: dict, claim: dict) -> dict:
     result.pop('share_latest_accession', None)
     result.pop('share_latest_period_end', None)
     result.pop('share_prior_period_end', None)
+    result.pop('share_annual_accession', None)
+    result.pop('share_annual_period_end', None)
     # Preserve comparative priors for YoY checks, but restrict the current year.
     for key, rows in list(result.items()):
         if isinstance(rows, list):
@@ -372,6 +395,9 @@ def _guard_cash_presentation(check: str, fields: dict, fact: dict, claim: dict) 
         if rows:
             row = max(rows, key=lambda r: (r.get('period_end') or '', r.get('filed') or ''))
             found = _presentation_problems(row)
+            if name == 'repurchase' and any(_number(r['value']) < 0 for r in
+                    [row, *(row.get('ttm_components') or {}).values()]):
+                found.append('negative gross repurchase: source sign or inconsistent FY/YTD components')
             if found:
                 fact['inputs'][name] = row
                 problems.extend(found)
@@ -468,7 +494,7 @@ def evaluate_facts(claims: list[dict], fields: dict) -> list[dict]:
                         if row.get('tag') == 'CommonStockSharesOutstanding' or row.get('derived') == 'issued - treasury']
                 if not rows:
                     raise ValueError('기말 주식수 공시 미확인')
-                current, prior = _filing_pair({**selected, 'shares':rows}, 'shares')
+                current, prior = _share_pair({**selected, 'shares':rows}, claim)
                 pair = (current, prior)
                 if pair is None:
                     raise ValueError('동일 공시의 기말 주식수 비교열 미확인')

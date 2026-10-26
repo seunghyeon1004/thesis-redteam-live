@@ -326,6 +326,10 @@ def enrich_shares(rows: list[dict], filings: list[dict] | None, client: Any,
              if len({Decimal(item['value']) for item in candidates}) == 1}
     for row in result:
         candidates = exact_groups.get(row.get('period_end'), [])
+        if row.get('form') in {'10-K', '10-K/A'}:
+            # Annual premises must not change when a later 10-Q supplies
+            # finer precision or conflicting comparative counts.
+            continue
         if candidates and row.get('period_end') not in exact:
             row['precision_conflict'] = [{'value': item['value'], 'accession': item['accession']}
                                          for item in candidates]

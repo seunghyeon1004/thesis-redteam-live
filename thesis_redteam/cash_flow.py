@@ -18,6 +18,7 @@ class _CashFlowTables(HTMLParser):
         self.context = None
         self.date_field = None
         self.hidden = None
+        self.visible_parts = []
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
@@ -67,6 +68,7 @@ class _CashFlowTables(HTMLParser):
         if self.context is not None and self.date_field:
             self.context[self.date_field] += data.strip()
         if not self.hidden:
+            self.visible_parts.append(data)
             for table in self.stack:
                 table["parts"].append(data)
                 if table["row"] is not None:
@@ -181,4 +183,21 @@ def cash_flow_presentation(body: bytes, source: dict) -> dict:
                 result.setdefault('aggregated', {'presentation':'aggregated',
                                   'presentation_change':'cash-flow lines aggregated into other financing',
                                   'presentation_line':label, 'presentation_tags':row_tags})
+    # A generic common-stock cash tag may describe employee tax settlement,
+    # which the memo excludes. Only explicit exclusion language is evidence;
+    # merely mentioning withholding elsewhere does not invalidate a program row.
+    visible = ' '.join(' '.join(parser.visible_parts).split())
+    excluded = re.search(
+        r'shares of common stock purchased relate to shares withheld.{0,180}withholding taxes'
+        r'|share withholding is considered a share repurchase for accounting purposes\..{0,180}'
+        r'repurchases do not fall under.{0,100}repurchase authorization', visible, re.I)
+    purchase = result.get('repurchase')
+    if (excluded and (not purchase or (purchase.get('presentation') == 'gross'
+            and 'PaymentsForRepurchaseOfCommonStock' in purchase.get('presentation_tags', [])
+            and not re.search(r'program|authorization', purchase.get('presentation_line', ''), re.I)))):
+        # Narrative exclusion still matters when a statement layout or heading
+        # is not recognized. This establishes uncertainty, never a cash amount.
+        purchase = result.setdefault('repurchase', {'presentation':'scope_unconfirmed'})
+        purchase.update(presentation_change='employee-tax withholding accounted as repurchases; program scope unconfirmed',
+                        scope_evidence=excluded.group(0))
     return result

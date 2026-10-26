@@ -119,8 +119,11 @@ def _dei_fact_root(companyfacts: dict[str, Any]) -> dict[str, Any]:
 
 def _allowed_fact(fact: dict[str, Any], accessions: set[str] | None, cutoff: Any) -> bool:
     accession = fact.get("accn") or fact.get("accession")
-    if accessions is not None and accession not in accessions:
-        return False
+    if accessions is not None:
+        # This set already passed the authoritative acceptance-time cutoff.
+        # SEC's date-only `filed` can be the following day; rechecking it
+        # would discard an accepted filing's facts and silently reuse FY.
+        return accession in accessions
     filed = fact.get("filed")
     if cutoff is not None and filed:
         filed_dt = parse_timestamp(filed)
@@ -1124,21 +1127,19 @@ def _apply_ttm(
         )
         for field in FLOW_FIELDS
     }
-    q_complete = latest.get("form") in {"10-Q", "10-Q/A"} and all(
-        annual_rows[field] is not None and q_rows[field] is not None
-        for field in ("repurchase", "cfo", "capex")
+    extracted["ttm_method"] = (
+        "fy_plus_ytd" if latest.get("form") in {"10-Q", "10-Q/A"}
+        and annual_rows['repurchase'] is not None and q_rows['repurchase'] is not None else "fy_only"
     )
-    method = "fy_plus_ytd" if q_complete else "fy_only"
-    extracted["ttm_method"] = method
     for field in FLOW_FIELDS:
         annual = annual_rows[field]
         if annual is None:
             extracted[field] = None
             continue
         current, prior = q_rows[field] if q_rows[field] is not None else (None, None)
-        field_method = method
-        if field == "common_issuance" and q_rows[field] is None:
-            field_method = "fy_only"
+        # Each metric has its own components. An unrelated CAPEX/CFO gap
+        # must not turn a valid repurchase TTM into an old annual value.
+        field_method = "fy_plus_ytd" if latest.get("form") in {"10-Q", "10-Q/A"} and q_rows[field] else "fy_only"
         row = _ttm_record(annual, current, prior, method=field_method)
         extracted[field] = [row] if row is not None else None
 
@@ -1654,6 +1655,16 @@ def extract_fields(
         if latest_annual and not latest_annual.get("history_source") else None
     )
     latest_share_filing = _latest_financial_filing(filing_rows, asof, extracted.get('shares') or [])
+    # Annual share premises are pinned to the latest annual filing, including
+    # when that filing lacks share facts. Never silently reuse an older 10-K.
+    share_annual = _latest_financial_filing(annual_filings or None, asof,
+        [r for r in extracted.get('shares') or [] if r.get('form') in {'10-K', '10-K/A'}])
+    if share_annual:
+        acc = share_annual.get('accession') or share_annual.get('accessionNumber')
+        originals = [r for r in extracted.get('shares') or [] if r.get('amendment_accession') == acc]
+        extracted['share_annual_accession'] = originals[0]['accession'] if originals else acc
+        extracted['share_annual_period_end'] = (share_annual.get('reportDate') or share_annual.get('period_end')
+            if not share_annual.get('history_source') else None)
     if latest_share_filing and str(latest_share_filing.get('form', '')).endswith('/A'):
         amendment_accession = latest_share_filing.get('accession') or latest_share_filing.get('accessionNumber')
         original_rows = [r for r in extracted.get('shares') or []
