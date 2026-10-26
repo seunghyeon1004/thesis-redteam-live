@@ -1,0 +1,13 @@
+{
+ "snapshot_asof": "2026-10-27",
+ "created_utc": "2026-10-26T06:53:54Z",
+ "code_sha256": "f75da2851b59a50f7f741ed0dc63b33aa73f73a384713745a50ffb3bcc1a5715",
+ "holdings": 544,
+ "memos": [
+  "shareholder_return",
+  "earnings_quality"
+ ],
+ "snapshot_sha256": "9901e491260c1af77d54c60d1496f8545605b75fb8b99c0194b77d2e6c8b07f1",
+ "rule": "Alert when a fact status changes after a new 10-Q/10-K is accepted; checked as of the day after filing. Every alert is scored against the original filing. No code change to thesis_redteam during scoring.",
+ "seconds": 1300
+}
