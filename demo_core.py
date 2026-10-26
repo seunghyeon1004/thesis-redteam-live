@@ -97,7 +97,8 @@ def summary_markdown(result: dict[str, Any]) -> str:
         lines += ["", "**원문에서 바로 찾기** (Cmd/Ctrl+F로 검색하면 원문에서 한 곳만 나오는 문구)"]
         lines += [f"- {_money(v)} → `{h}`" for v, h in list(result["hints"].items())[:6]]
     lines += ["", "판정불가는 데이터가 없거나 교차확인에 실패해 억지 결론을 내지 않은 경우입니다. 이 데모는 LLM 없이 코드 검산만 실행합니다(가격 미사용). 투자 권유가 아닙니다."]
-    return "\n".join(lines)
+    # Streamlit markdown treats paired "$" as LaTeX math; escape every dollar sign.
+    return "\n".join(lines).replace("$", "\\$")
 
 
 def report_iframe(result: dict[str, Any]) -> str:

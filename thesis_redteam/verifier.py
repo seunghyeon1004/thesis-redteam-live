@@ -193,8 +193,10 @@ def _money_candidates(value: Any, scales: list[int]) -> list[str]:
 def issuance_notes(record: dict[str, Any]) -> list[str]:
     """Keep source assumptions visible even when FY/YTD components are combined."""
     notes = [record["issuance_note"]] if record.get("issuance_note") else []
-    for component in (record.get("ttm_components") or {}).values():
-        notes.extend(issuance_notes(component))
+    labels = {"fy": "직전 연간", "current_ytd": "올해 누적", "prior_ytd": "작년 같은 기간"}
+    for name, component in (record.get("ttm_components") or {}).items():
+        # Name the TTM piece so a note about one period is not read as describing the whole total.
+        notes.extend(f"{labels.get(name, name)} 구간: {note}" for note in issuance_notes(component))
     return list(dict.fromkeys(notes))
 
 
