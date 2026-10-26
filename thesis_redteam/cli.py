@@ -290,11 +290,23 @@ def build_parser() -> argparse.ArgumentParser:
     agent.add_argument("--criteria", choices=["default", "none"], default="default", help="default: use user-approved research screening rules; none: facts only")
     render = subparsers.add_parser("render", help="rebuild HTML from a saved report JSON without running an agent")
     render.add_argument("--json", required=True, dest="json_path", help="saved report JSON path")
+    from .watch import add_watch_parser
+    add_watch_parser(subparsers)
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "watch":
+        from .watch import fake_watch_provider, run_watch
+        result = run_watch(
+            ticker=args.ticker, memo=args.memo, memo_date=args.memo_date,
+            asof=args.asof, out_dir=args.out, model=args.model, cik=args.cik,
+            offline=args.offline, fixture_dir=args.fixture_dir,
+            provider=fake_watch_provider() if args.provider == "fake" else None,
+        )
+        print(json.dumps(result, ensure_ascii=False))
+        return 0
     if args.command == "run":
         json_path, html_path, report = run_case(
             ticker=args.ticker,
