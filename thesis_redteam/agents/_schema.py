@@ -7,6 +7,10 @@ from typing import Any
 
 def validate(value: Any, schema: dict[str, Any], path: str = "$", *, strict: bool = False) -> list[str]:
     errors: list[str] = []
+    if "anyOf" in schema and not any(
+        not validate(value, choice, path, strict=strict) for choice in schema["anyOf"]
+    ):
+        errors.append(f"{path}: no anyOf schema matched")
     expected = schema.get("type")
     type_ok = {
         "object": isinstance(value, dict),

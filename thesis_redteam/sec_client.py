@@ -59,6 +59,7 @@ class SecClient:
         self._min_interval = max(min_interval, 0.2)
         self._last_request = 0.0
         self._lock = threading.Lock()
+        self._primary_document_errors: dict[str, Exception] = {}
 
     @staticmethod
     def url_key(url: str) -> str:
@@ -194,5 +195,15 @@ class SecClient:
 
     def primary_document(self, cik: str | int, accession: str, primary_document: str) -> bytes:
         acc_no_dash = accession.replace("-", "")
-        return self.get(f"{SEC_ARCHIVES}/{int(cik)}/{acc_no_dash}/{primary_document}")
+        url = f"{SEC_ARCHIVES}/{int(cik)}/{acc_no_dash}/{primary_document}"
+        # Extraction, share precision and advisory verification inspect the same
+        # source. One failed request is conclusive for this client operation;
+        # later consumers must not silently retry the external request.
+        if url in self._primary_document_errors:
+            raise self._primary_document_errors[url]
+        try:
+            return self.get(url)
+        except (OfflineDataUnavailable, SecNetworkError, OSError) as exc:
+            self._primary_document_errors[url] = exc
+            raise
 

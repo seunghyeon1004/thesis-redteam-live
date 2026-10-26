@@ -5,8 +5,9 @@ from __future__ import annotations
 from datetime import date, timedelta
 from decimal import Decimal, InvalidOperation
 from typing import Any, Callable, Iterable
+import re
 
-from .cash_flow import ABSENT_ISSUANCE_NOTE, common_issuance_absent
+from .cash_flow import ABSENT_ISSUANCE_NOTE, common_issuance_absent, cash_flow_presentation
 from .pit import allowed_accessions, asof_cutoff, filter_filings, filings_with_fact_history, parse_timestamp
 from .sec_client import OfflineDataUnavailable, SecClient, SecNetworkError
 
@@ -48,6 +49,7 @@ CORROBORATING_EQUITY_PROCEEDS_TAGS: tuple[str, ...] = (
 
 FIELD_TAGS: dict[str, tuple[str, ...]] = {
     "repurchase": ("PaymentsForRepurchaseOfCommonStock",),
+    "tax_withholding_acquisitions": ("PaymentsRelatedToTaxWithholdingForShareBasedCompensation",),
     "common_issuance": ISSUANCE_TAGS,
     "shares": ("CommonStockSharesOutstanding",),
     "public_float": ("EntityPublicFloat",),
@@ -69,11 +71,17 @@ FIELD_TAGS: dict[str, tuple[str, ...]] = {
     "capex": CAPEX_TAGS,
     "cash": ("CashAndCashEquivalentsAtCarryingValue", "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents"),
     "assets": ("Assets",),
+    "revenue": ("Revenues", "RevenueFromContractWithCustomerExcludingAssessedTax", "SalesRevenueNet"),
+    "operating_income": ("OperatingIncomeLoss",),
+    "dividends": ("PaymentsOfDividends", "PaymentsOfDividendsCommonStock"),
 }
+
+PREMISE_FLOW_FIELDS = ("revenue", "operating_income", "dividends")
 
 COMPARATIVE_FIELDS = {"shares", "cash", "assets"}
 MONETARY_FIELDS = {
     "repurchase",
+    "tax_withholding_acquisitions",
     "common_issuance",
     "public_float",
     "cfo",
@@ -85,6 +93,7 @@ MONETARY_FIELDS = {
     "capex",
     "cash",
     "assets",
+    *PREMISE_FLOW_FIELDS,
 }
 ANNUAL_REPORT_FORMS = {
     "10-K",
@@ -727,6 +736,15 @@ def _annual_record(rows: list[dict[str, Any]], filing: dict[str, Any] | None) ->
         and _is_annual_duration(row)
         and (not period_end or row.get("period_end") == period_end)
     ]
+    if not candidates and filing.get('form') == '10-K/A' and period_end:
+        originals = [row for row in rows if row.get('form') == '10-K'
+                     and row.get('period_end') == period_end and _is_annual_duration(row)]
+        if originals:
+            # A governance-only amendment does not withdraw the original cash
+            # statement. Retain the original accession rather than relabel it.
+            original = max(originals, key=_filing_order)
+            return {**original, 'amendment_accession':accession,
+                    'amendment_note':'same-FY original; amendment has no value for this component'}
     if not candidates:
         return None
     latest_end = max(row.get("period_end") for row in candidates)
@@ -815,6 +833,10 @@ def _ttm_record(
                 tags.append(tag)
     if tags:
         result["tags_used"] = tags
+    modes = {r.get('presentation') for r in (annual, current, prior)} - {None}
+    problems = [r['presentation_change'] for r in (annual, current, prior) if r.get('presentation_change')]
+    if len(modes) > 1 or problems:
+        result['presentation_change'] = '; '.join(dict.fromkeys(problems)) or 'mixed gross/net cash-flow presentation'
     return result
 
 
@@ -1312,6 +1334,86 @@ def _preferred_balance_records(
     return selected
 
 
+def _annotate_cash_presentation(extracted: dict, filings: list[dict] | None, facts: dict, *,
+                                asof: Any, client: SecClient,
+                                before_fetch: Callable[[], None] | None) -> None:
+    """Inspect only the source filings feeding current FY/TTM cash predicates.
+
+    Missing components keep their provenance in presentation_changes; no amount
+    is imputed for them, and an old FY value cannot masquerade as current TTM.
+    """
+    visible = filter_filings(filings, asof) if filings is not None and asof is not None else filings or []
+    financial = [r for r in visible if r.get('form') in {'10-K', '10-K/A', '10-Q', '10-Q/A'}]
+    annual = [r for r in financial if r.get('form') in {'10-K', '10-K/A'}]
+    selected = {r.get('accession') or r.get('accessionNumber'): r for r in
+                ([max(financial, key=_filing_sort_key)] if financial else []) +
+                ([max(annual, key=_filing_sort_key)] if annual else [])}
+    # Include the actual original source when a governance-only amendment has
+    # no numerical statements of its own.
+    for filing in list(selected.values()):
+        if filing.get('form') != '10-K/A':
+            continue
+        original = next((_annual_record(extracted.get(field) or [], filing)
+                         for field in ('repurchase', 'cfo', 'capex')
+                         if _annual_record(extracted.get(field) or [], filing)), None)
+        if original and original.get('amendment_accession'):
+            source_filing = next((f for f in visible if
+                (f.get('accession') or f.get('accessionNumber')) == original['accession']), None)
+            if source_filing:
+                selected[original['accession']] = source_filing
+    equivalents = _usd_records(_records_for_tags(facts, ('PaymentsForRepurchaseOfEquity',),
+        accessions=set(selected), cutoff=asof_cutoff(asof) if asof is not None else None, cik=None))
+    for accession, filing in selected.items():
+        sources = [r for field in ('cfo', 'capex', 'repurchase', 'common_issuance')
+                   for r in extracted.get(field) or [] if r.get('accession') == accession]
+        # Keep FY or YTD, not shorter quarter facts sharing the same end date.
+        by_end = {}
+        for source in sources:
+            end = source.get('period_end')
+            if end not in by_end or _duration_days(source) > _duration_days(by_end[end]):
+                by_end[end] = source
+        sources = sorted(by_end.values(), key=lambda r: r.get('period_end') or '', reverse=True)[:2]
+        document = filing.get('primaryDocument')
+        cik = next((r.get('cik') for r in sources if r.get('cik')), None)
+        if not (accession and document and cik):
+            continue
+        try:
+            if before_fetch:
+                before_fetch()
+            body = client.primary_document(cik, accession, document)
+        except (OfflineDataUnavailable, SecNetworkError, OSError):
+            continue
+        for source in sources:
+            evidence = cash_flow_presentation(body, source)
+            info = evidence.get('repurchase') or {}
+            label = info.get('presentation_line', '')
+            program = (info.get('presentation') == 'gross'
+                       and 'PaymentsForRepurchaseOfEquity' in info.get('presentation_tags', [])
+                       and re.search(r'program|common stock', label, re.I)
+                       and not re.search(r'tax|withhold|preferred|noncontrolling|subsidiar', label, re.I))
+            if program and not any(r.get('accession') == accession and _same_period(r, source)
+                                   for r in extracted.get('repurchase') or []):
+                candidates = [r for r in equivalents if r.get('accession') == accession and _same_period(r, source)]
+                for candidate in candidates:
+                    equivalent = {**candidate, **info, 'cik':source.get('cik'), 'repurchase_scope':'program',
+                                  'equivalent_note':'equity cash tag confirmed as program repurchases in same-period cash-flow row'}
+                    extracted['repurchase'] = [*(extracted.get('repurchase') or []), equivalent]
+            for field in ('repurchase', 'common_issuance'):
+                matches = [r for r in extracted.get(field) or []
+                           if r.get('accession') == accession and _same_period(r, source)]
+                info = evidence.get(field)
+                if not matches and evidence.get('aggregated'):
+                    info = info if info and info.get('presentation_change') else evidence['aggregated']
+                if info is None:
+                    continue
+                for match in matches:
+                    match.update(info)
+                if not matches and info.get('presentation_change'):
+                    missing = {**source, **info, 'field':field, 'primary_document':document}
+                    missing.pop('value', None)  # not a numeric component
+                    extracted.setdefault('presentation_changes', {}).setdefault(field, []).append(missing)
+
+
 def _infer_absent_issuance(
     extracted: dict[str, Any], facts: dict[str, Any], filings: list[dict[str, Any]] | None,
     *, asof: Any, client: SecClient, before_fetch: Callable[[], None] | None,
@@ -1425,6 +1527,13 @@ def extract_fields(
                 cik=cik,
                 dedupe=False,
             )
+            if field == "capex":
+                extracted["capex_comparative"] = _duration_comparative_records(values) or None
+        elif field in PREMISE_FLOW_FIELDS:
+            values = _select_preferred_monetary_records(
+                facts, tags, accessions=accessions, cutoff=cutoff, cik=cik, dedupe=False,
+            )
+            extracted[f"{field}_comparative"] = _duration_comparative_records(values) or None
         elif field == "net_income":
             values = _select_preferred_monetary_records(
                 facts,
@@ -1470,7 +1579,7 @@ def extract_fields(
                 # TTM selects a filing first, then its FY/YTD comparative
                 # columns. Period-only dedupe would discard those columns
                 # when the prior YTD was originally disclosed a year earlier.
-                values = records if field in COMPARATIVE_FIELDS or field == "repurchase" else _dedupe(records)
+                values = records if field in COMPARATIVE_FIELDS or field in {"repurchase", "tax_withholding_acquisitions"} else _dedupe(records)
         extracted[field] = values or None
     for field in EARNINGS_COMPARATIVE_FIELDS:
         raw = extracted.get(field)
@@ -1498,13 +1607,73 @@ def extract_fields(
             )
         extracted[f"{field}_comparative"] = _duration_comparative_records(raw) or None
     if sec_client is not None:
+        from .share_counts import enrich_shares
+        extracted['shares'] = enrich_shares(extracted.get('shares') or [],
+            filter_filings(filing_rows, asof) if filing_rows is not None and asof is not None else filing_rows,
+            sec_client, cik, before_fetch=before_fetch) or None
+        _annotate_cash_presentation(extracted, filing_rows, facts, asof=asof,
+                                   client=sec_client, before_fetch=before_fetch)
         _infer_absent_issuance(extracted, facts, filing_rows, asof=asof,
                                client=sec_client, before_fetch=before_fetch)
+    # WATCH keeps independent PIT-filtered history. Legacy fields below still
+    # use exactly their existing latest-TTM selection and fallback rules.
+    from .commitment_periods import fiscal_cohorts
+    ledger_fields = {}
+    for field in ('repurchase', 'dividends', 'revenue', 'operating_income', 'capex', 'cfo', 'assets'):
+        ledger_fields[field] = _select_preferred_monetary_records(
+            facts, FIELD_TAGS[field], accessions=accessions, cutoff=cutoff, cik=cik, dedupe=False,
+        )
+    ledger_fields['repurchase'] = list(extracted.get('repurchase') or [])
+    ledger_fields['interest_bearing_debt'] = _aggregate_debt(
+        facts, accessions=accessions, cutoff=cutoff, cik=cik,
+    )
+    extracted['commitment_ledger'] = {
+        'fields': ledger_fields, 'periods': fiscal_cohorts(
+            ledger_fields, filter_filings(filing_rows, asof) if filing_rows is not None else None),
+    }
+    # Excluded employee-tax acquisitions are independently assembled and never
+    # influence the program-repurchase TTM period selection.
+    _apply_ttm_subset(extracted, ('tax_withholding_acquisitions',), filings=filing_rows, asof=asof)
     _apply_ttm(extracted, filings=filing_rows, asof=asof)
     _apply_ttm_subset(extracted, EARNINGS_TTM_FIELDS, filings=filing_rows, asof=asof)
     _apply_earnings_quality_ttm(extracted, filings=filing_rows, asof=asof)
     debt = _aggregate_debt(facts, accessions=accessions, cutoff=cutoff, cik=cik)
     extracted["interest_bearing_debt_comparative"] = debt or None
     extracted["interest_bearing_debt"] = _dedupe(debt) or None
+    # Independent optional fields must never change the existing C1-C4/E1-E5
+    # period selection. Retain same-filing FY columns for literal YoY checks.
+    _apply_ttm_subset(extracted, PREMISE_FLOW_FIELDS, filings=filing_rows, asof=asof)
+    annual_filings = [row for row in filing_rows or [] if row.get("form") in {"10-K", "10-K/A"}]
+    annual_records = [row for field in (*PREMISE_FLOW_FIELDS, "capex")
+                      for row in extracted.get(f"{field}_comparative") or []
+                      if row.get("form") in {"10-K", "10-K/A"}]
+    latest_annual = _latest_financial_filing(annual_filings or None, asof, annual_records)
+    extracted["premise_latest_annual_accession"] = (latest_annual or {}).get("accession")
+    extracted["premise_latest_annual_period_end"] = (
+        latest_annual.get("reportDate") or latest_annual.get("period_end")
+        if latest_annual and not latest_annual.get("history_source") else None
+    )
+    latest_share_filing = _latest_financial_filing(filing_rows, asof, extracted.get('shares') or [])
+    if latest_share_filing and str(latest_share_filing.get('form', '')).endswith('/A'):
+        amendment_accession = latest_share_filing.get('accession') or latest_share_filing.get('accessionNumber')
+        original_rows = [r for r in extracted.get('shares') or []
+                         if r.get('amendment_accession') == amendment_accession]
+        if original_rows:
+            source = max(original_rows, key=lambda r:r.get('period_end') or '')
+            latest_share_filing = {**latest_share_filing, 'accession':source['accession']}
+    if latest_share_filing:
+        extracted['share_latest_accession'] = latest_share_filing.get('accession') or latest_share_filing.get('accessionNumber')
+        extracted['share_latest_period_end'] = None if latest_share_filing.get('history_source') else (
+            latest_share_filing.get('reportDate') or latest_share_filing.get('period_end'))
+        current_end = extracted['share_latest_period_end']
+        annual_ends = {f.get('reportDate') for f in filing_rows or []
+                       if f.get('form') in {'10-K', '10-K/A'} and not f.get('history_source')}
+        annual_ends.update(r.get('period_end') for field in ('cfo', 'repurchase', 'revenue')
+                           for r in ledger_fields.get(field) or [] if _is_annual_duration(r))
+        eligible = [end for end in annual_ends if end and current_end and end < current_end]
+        if eligible:
+            # Equity notes contain interim rollforwards too. The comparison is
+            # the prior fiscal-end balance, never the nearest quarter in a note.
+            extracted['share_prior_period_end'] = max(eligible)
     return extracted
 

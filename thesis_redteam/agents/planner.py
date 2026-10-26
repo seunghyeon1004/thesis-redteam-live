@@ -7,7 +7,7 @@ import re
 from typing import Any
 
 from ._schema import validate
-from ..facts import FACT_CHECKS
+from ..facts import COMMITMENT_CHECKS, FACT_CHECKS
 
 
 PLANNER_SCHEMA: dict[str, Any] = {
@@ -33,7 +33,7 @@ PLANNER_SCHEMA: dict[str, Any] = {
             "type": "array", "items": {
                 "type": "object", "properties": {
                     "id": {"type": "string"},
-                    "check": {"type": "string", "enum": list(FACT_CHECKS)},
+                    "check": {"type": "string", "enum": [name for name in FACT_CHECKS if name not in COMMITMENT_CHECKS]},
                     "statement_ko": {"type": "string"},
                     "original_quote": {"type": "string"},
                     "threshold": {"type": "string"},
@@ -62,6 +62,17 @@ def build_prompt(*, thesis: str, ticker: str, asof: str, templates: list[str]) -
         "단순 매입 사실은 순환원이나 주식수 감소를 함의하지 않는다. "
         "earnings_quality: F1 net_income_increased(순이익 증가), F2 cfo_supports_income(CFO/NI ≥ 1, "
         "사용자가 수치 기준을 명시한 경우에만 threshold를 변경) 중 주장된 사실만 추출한다. "
+        "추가 사실 검증은 템플릿과 독립적이다: revenue_increased(매출 증가), "
+        "operating_margin_improved(영업이익/매출 비율 개선), fcf_positive(CFO−설비투자 > 0), "
+        "leverage_not_rising(이자부 총부채/총자산 변화 ≤ threshold, 단위 %p, 기본 0), "
+        "dividends_paid(배당 지급 > 0), shares_not_diluting(기말 보통주 주식수 증가율 ≤ threshold, "
+        "단위 %, 기본 0), capex_increased(설비투자 증가)를 원문에 명시된 경우에만 매핑한다. "
+        "매출·마진·설비투자 증가는 최신 FY의 동일 공시 전년 비교열로 검증하며, "
+        "FCF·배당은 최신 TTM 또는 FY, 부채·주식수는 동일 공시 기말 비교값으로 검증한다. "
+        "C4의 순부채나 선별 임계값을 leverage_not_rising에 적용하지 말라. "
+        "추가 사실만 있는 경우 earnings_quality(배당/주식수는 shareholder_return)로 라우팅하되 "
+        "claims에 새 선별조건을 만들지 말라. 지원 사실과 미지원 주장이 섞이면 지원 사실은 "
+        "fact_claims에 유지하고 미지원 부분만 unsupported_claims에 보존한다. "
         "연도가 명시되면 period_year에 기록한다. 미명시 threshold/period_year는 빈 문자열이다. "
         "미래 예측, 시장 점유율, 경영진 신뢰, ESG 평가는 공시 숫자로 검증할 수 없다. "
         "미지원 주장은 unsupported_claims에 원문 그대로 보존한다. 매핑할 수 없으면 "
