@@ -1,0 +1,83 @@
+{
+ "sealed": "2026-10-26 (v4)",
+ "last_run_utc": "2026-10-27T04:35:03.037132+00:00",
+ "filings_scored": 6,
+ "status_changes": 2,
+ "verified_real": 2,
+ "pending_check": 0,
+ "catches": [
+  {
+   "ticker": "AZO",
+   "memo": "earnings_quality",
+   "form": "10-K",
+   "accepted_utc": "2026-10-26T20:24:07+00:00",
+   "detected_utc": "2026-10-27T00:32:12.071912+00:00",
+   "old": {
+    "F1": "FALSE",
+    "F2": "TRUE"
+   },
+   "new": {
+    "F1": "TRUE",
+    "F2": "TRUE"
+   },
+   "changed": [
+    "F1"
+   ],
+   "human": {
+    "verdict": "실제 변화",
+    "premise": "F1 순이익이 늘었다 (최근 회계연도, 전년 대비)",
+    "numbers": "순이익 FY2025 $2,498.2M → FY2026 $2,572.8M (+$74.5M)",
+    "source_line": "Net income $ 2,572,777 $ 2,498,247 (in thousands)",
+    "context": "FY2025는 재작성 수치(주석 2) 기준",
+    "url": "https://www.sec.gov/Archives/edgar/data/866787/000110465926118791/azo-20260829x10k.htm",
+    "checked": "2026-10-27 원문 손익 요약표 대조"
+   },
+   "agent_headline": "AZO 순이익 증가 판정 FALSE → TRUE 전환 (FY2026 10-K 반영)",
+   "agent_questions": [
+    "10-K의 FY2025 비교 열(2,498,247천 USD)이 이전 10-K의 값과 같은지 확인했는가?",
+    "메모의 '순이익이 늘었고' 문구가 가리키는 기간은 연간(FY)인가, TTM인가?",
+    "3분기 TTM 감소(-85,381천 USD)에서 연간 증가(+74,530천 USD)로 바뀐 원인은 4분기 실적인가?"
+   ],
+   "regenerated": true
+  },
+  {
+   "ticker": "CLS",
+   "memo": "shareholder_return",
+   "form": "10-Q",
+   "accepted_utc": "2026-10-26T20:26:17+00:00",
+   "detected_utc": "2026-10-27T00:32:24.265391+00:00",
+   "old": {
+    "F1": "TRUE",
+    "F2": "TRUE",
+    "F3": "TRUE"
+   },
+   "new": {
+    "F1": "TRUE",
+    "F2": "FALSE",
+    "F3": "TRUE"
+   },
+   "changed": [
+    "F2"
+   ],
+   "human": {
+    "verdict": "실제 변화",
+    "premise": "F2 순환원이 양수다 (최근 12개월 매입 > 보통주 발행)",
+    "numbers": "최근 12개월 매입 $58.3M (153.4 + 22.6 − 117.7) − 보통주 발행 $3,391.3M = 순환원 −$3,333.0M",
+    "source_line": "Proceeds from issuance of capital stock under public offering, net of issuance costs 3,391.3",
+    "context": "2026-08-07 보통주 11,129,031주를 주당 $310에 공모 (MD&A)",
+    "url": "https://www.sec.gov/Archives/edgar/data/1030894/000103089426000050/cls-20260930.htm",
+    "checked": "2026-10-27 원문 현금흐름표·MD&A 대조"
+   },
+   "agent_headline": "CLS 순자사주 환원 판정 TRUE→FALSE 전환, 단 보통주 발행 33.9억 달러가 현금 항목인지 불확실",
+   "agent_questions": [
+    "3,391.3이 현금흐름표의 재무활동 줄인가, 아니면 자본변동표나 주석(합병·전환 등 비현금 발행, 자본 잔액) 숫자인가?",
+    "현금흐름표의 'Proceeds from issuance of capital stock under SBC plans' 당기 9개월 값은 대시(0)인가, 3,391.3인가?",
+    "ProceedsFromIssuanceOfCommonStock 태그와 SBC 플랜 태그의 값 차이(0.3 대 3,391.3)는 어디서 생겼나?"
+   ],
+   "regenerated": true
+  }
+ ],
+ "defects": [
+  "첫 알림의 비교 기준 날짜가 봉인일(10-26) 대신 10-27로 고정 → 설명이 '변화 없음'으로 비어 나옴. 감지·판정은 정상. 같은 봉인 코드로 날짜만 고쳐 설명 재생성, v5에서 수정."
+ ]
+}
