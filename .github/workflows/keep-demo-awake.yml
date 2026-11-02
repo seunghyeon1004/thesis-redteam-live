@@ -1,0 +1,26 @@
+name: keep-demo-awake
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  visit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - run: npm i playwright@1.49.1 && npx playwright install --with-deps chromium
+      - name: Open the demo and press the wake button if it is asleep
+        run: |
+          cat > visit.mjs <<'JS'
+          import { chromium } from 'playwright';
+          const b = await chromium.launch(); const p = await b.newPage();
+          await p.goto('https://seunghyeon1004-thesis-redteam-live-streamlit-app-mwiots.streamlit.app/', { timeout: 90000 });
+          await p.waitForTimeout(8000);
+          const w = p.getByRole('button', { name: /back up|wake/i });
+          if (await w.count()) { await w.first().click(); console.log('woke'); await p.waitForTimeout(90000); }
+          else { await p.waitForTimeout(20000); console.log('awake'); }
+          await b.close();
+          JS
+          node visit.mjs
