@@ -1,0 +1,156 @@
+[
+ {
+  "unit": "C01-F3",
+  "ticker": "BLK",
+  "cik": "2012383",
+  "old_asof": "2025-01-02",
+  "new_asof": "2025-11-06",
+  "form": "10-Q",
+  "accession": "0001193125-25-267043",
+  "premise": "F3",
+  "check": "shares_decreased"
+ },
+ {
+  "unit": "C02-F3",
+  "ticker": "MNST",
+  "cik": "865752",
+  "old_asof": "2025-11-08",
+  "new_asof": "2026-02-28",
+  "form": "10-K",
+  "accession": "0001104659-26-020831",
+  "premise": "F3",
+  "check": "shares_decreased"
+ },
+ {
+  "unit": "C03-F1",
+  "ticker": "ALAB",
+  "cik": "1736297",
+  "old_asof": "2025-02-15",
+  "new_asof": "2026-05-07",
+  "form": "10-Q",
+  "accession": "0001736297-26-000020",
+  "premise": "F1",
+  "check": "repurchase_positive"
+ },
+ {
+  "unit": "C04-F1",
+  "ticker": "PWR",
+  "cik": "1050915",
+  "old_asof": "2025-05-02",
+  "new_asof": "2026-07-31",
+  "form": "10-Q",
+  "accession": "0001050915-26-000025",
+  "premise": "F1",
+  "check": "repurchase_positive"
+ },
+ {
+  "unit": "C04-F2",
+  "ticker": "PWR",
+  "cik": "1050915",
+  "old_asof": "2025-05-02",
+  "new_asof": "2026-07-31",
+  "form": "10-Q",
+  "accession": "0001050915-26-000025",
+  "premise": "F2",
+  "check": "net_buyback_positive"
+ },
+ {
+  "unit": "C05-F1",
+  "ticker": "SBUX",
+  "cik": "829224",
+  "old_asof": "2025-01-02",
+  "new_asof": "2025-04-30",
+  "form": "10-Q",
+  "accession": "0000829224-25-000034",
+  "premise": "F1",
+  "check": "repurchase_positive"
+ },
+ {
+  "unit": "C05-F2",
+  "ticker": "SBUX",
+  "cik": "829224",
+  "old_asof": "2025-01-02",
+  "new_asof": "2025-04-30",
+  "form": "10-Q",
+  "accession": "0000829224-25-000034",
+  "premise": "F2",
+  "check": "net_buyback_positive"
+ },
+ {
+  "unit": "C06-F1",
+  "ticker": "MELI",
+  "cik": "1099590",
+  "old_asof": "2025-02-22",
+  "new_asof": "2025-08-06",
+  "form": "10-Q",
+  "accession": "0001099590-25-000044",
+  "premise": "F1",
+  "check": "repurchase_positive"
+ },
+ {
+  "unit": "C06-F2",
+  "ticker": "MELI",
+  "cik": "1099590",
+  "old_asof": "2025-02-22",
+  "new_asof": "2025-08-06",
+  "form": "10-Q",
+  "accession": "0001099590-25-000044",
+  "premise": "F2",
+  "check": "net_buyback_positive"
+ },
+ {
+  "unit": "C07-F1",
+  "ticker": "MU",
+  "cik": "723125",
+  "old_asof": "2025-01-02",
+  "new_asof": "2025-10-04",
+  "form": "10-K",
+  "accession": "0000723125-25-000028",
+  "premise": "F1",
+  "check": "repurchase_positive"
+ },
+ {
+  "unit": "C08-F3",
+  "ticker": "SLB",
+  "cik": "87347",
+  "old_asof": "2025-01-23",
+  "new_asof": "2026-04-30",
+  "form": "10-Q",
+  "accession": "0001193125-26-190101",
+  "premise": "F3",
+  "check": "shares_decreased"
+ },
+ {
+  "unit": "C09-F2",
+  "ticker": "PLTR",
+  "cik": "1321655",
+  "old_asof": "2025-01-02",
+  "new_asof": "2025-02-19",
+  "form": "10-K",
+  "accession": "0001321655-25-000022",
+  "premise": "F2",
+  "check": "net_buyback_positive"
+ },
+ {
+  "unit": "C10-F2",
+  "ticker": "ALAB",
+  "cik": "1736297",
+  "old_asof": "2025-01-02",
+  "new_asof": "2025-02-15",
+  "form": "10-K",
+  "accession": "0001736297-25-000003",
+  "premise": "F2",
+  "check": "net_buyback_positive"
+ },
+ {
+  "unit": "C10-F3",
+  "ticker": "ALAB",
+  "cik": "1736297",
+  "old_asof": "2025-01-02",
+  "new_asof": "2025-02-15",
+  "form": "10-K",
+  "accession": "0001736297-25-000003",
+  "premise": "F3",
+  "check": "shares_decreased"
+ }
+]

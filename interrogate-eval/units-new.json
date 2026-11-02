@@ -1,0 +1,302 @@
+[
+ {
+  "unit": "N-DOW-2025-07-26-F2",
+  "ticker": "DOW",
+  "cik": "1751788",
+  "old_asof": "2025-04-26",
+  "new_asof": "2025-07-26",
+  "form": "10-Q",
+  "accession": "0001751788-25-000145",
+  "premise": "F2"
+ },
+ {
+  "unit": "N-CVS-2025-10-30-F1",
+  "ticker": "CVS",
+  "cik": "64803",
+  "old_asof": "2025-08-01",
+  "new_asof": "2025-10-30",
+  "form": "10-Q",
+  "accession": "0000064803-25-000037",
+  "premise": "F1"
+ },
+ {
+  "unit": "N-BMY-2026-02-12-F3",
+  "ticker": "BMY",
+  "cik": "14272",
+  "old_asof": "2025-10-31",
+  "new_asof": "2026-02-12",
+  "form": "10-K",
+  "accession": "0000014272-26-000004",
+  "premise": "F3"
+ },
+ {
+  "unit": "N-HD-2025-03-21-F3",
+  "ticker": "HD",
+  "cik": "354950",
+  "old_asof": "2025-01-02",
+  "new_asof": "2025-03-21",
+  "form": "10-K",
+  "accession": "0000354950-25-000085",
+  "premise": "F3"
+ },
+ {
+  "unit": "N-RTX-2025-02-05-F3",
+  "ticker": "RTX",
+  "cik": "101829",
+  "old_asof": "2025-01-02",
+  "new_asof": "2025-02-05",
+  "form": "10-K",
+  "accession": "0000101829-25-000005",
+  "premise": "F3"
+ },
+ {
+  "unit": "N-INCY-2025-10-30-F1",
+  "ticker": "INCY",
+  "cik": "879169",
+  "old_asof": "2025-07-31",
+  "new_asof": "2025-10-30",
+  "form": "10-Q",
+  "accession": "0000879169-25-000118",
+  "premise": "F1"
+ },
+ {
+  "unit": "N-SO-2026-02-20-F3",
+  "ticker": "SO",
+  "cik": "92122",
+  "old_asof": "2025-10-31",
+  "new_asof": "2026-02-20",
+  "form": "10-K",
+  "accession": "0000092122-26-000006",
+  "premise": "F3"
+ },
+ {
+  "unit": "N-KDP-2026-02-25-F3",
+  "ticker": "KDP",
+  "cik": "1418135",
+  "old_asof": "2025-10-28",
+  "new_asof": "2026-02-25",
+  "form": "10-K",
+  "accession": "0001418135-26-000016",
+  "premise": "F3"
+ },
+ {
+  "unit": "N-ORCL-2025-03-13-F2",
+  "ticker": "ORCL",
+  "cik": "1341439",
+  "old_asof": "2025-01-02",
+  "new_asof": "2025-03-13",
+  "form": "10-Q",
+  "accession": "0000950170-25-037143",
+  "premise": "F2"
+ },
+ {
+  "unit": "N-AFRM-2026-02-07-F1",
+  "ticker": "AFRM",
+  "cik": "1820953",
+  "old_asof": "2025-11-08",
+  "new_asof": "2026-02-07",
+  "form": "10-Q",
+  "accession": "0001628280-26-005855",
+  "premise": "F1"
+ },
+ {
+  "unit": "N-EL-2025-10-31-F2",
+  "ticker": "EL",
+  "cik": "1001250",
+  "old_asof": "2025-08-21",
+  "new_asof": "2025-10-31",
+  "form": "10-Q",
+  "accession": "0001001250-25-000109",
+  "premise": "F2"
+ },
+ {
+  "unit": "N-ED-2025-02-21-F3",
+  "ticker": "ED",
+  "cik": "1047862",
+  "old_asof": "2025-01-02",
+  "new_asof": "2025-02-21",
+  "form": "10-K",
+  "accession": "0001047862-25-000011",
+  "premise": "F3"
+ },
+ {
+  "unit": "N-DUK-2025-02-28-F3",
+  "ticker": "DUK",
+  "cik": "1326160",
+  "old_asof": "2025-01-02",
+  "new_asof": "2025-02-28",
+  "form": "10-K",
+  "accession": "0001326160-25-000072",
+  "premise": "F3"
+ },
+ {
+  "unit": "N-UPS-2026-05-07-F1",
+  "ticker": "UPS",
+  "cik": "1090727",
+  "old_asof": "2026-02-18",
+  "new_asof": "2026-05-07",
+  "form": "10-Q",
+  "accession": "0001628280-26-031154",
+  "premise": "F1"
+ },
+ {
+  "unit": "N-HSY-2026-02-19-F3",
+  "ticker": "HSY",
+  "cik": "47111",
+  "old_asof": "2025-10-31",
+  "new_asof": "2026-02-19",
+  "form": "10-K",
+  "accession": "0001628280-26-008586",
+  "premise": "F3"
+ },
+ {
+  "unit": "N-PANW-2025-05-22-F1",
+  "ticker": "PANW",
+  "cik": "1327567",
+  "old_asof": "2025-02-16",
+  "new_asof": "2025-05-22",
+  "form": "10-Q",
+  "accession": "0001327567-25-000017",
+  "premise": "F1"
+ },
+ {
+  "unit": "N-GD-2026-01-31-F3",
+  "ticker": "GD",
+  "cik": "40533",
+  "old_asof": "2025-10-25",
+  "new_asof": "2026-01-31",
+  "form": "10-K",
+  "accession": "0000040533-26-000006",
+  "premise": "F3"
+ },
+ {
+  "unit": "N-QSR-2025-02-23-F2",
+  "ticker": "QSR",
+  "cik": "1618756",
+  "old_asof": "2025-01-02",
+  "new_asof": "2025-02-23",
+  "form": "10-K",
+  "accession": "0001618756-25-000087",
+  "premise": "F2"
+ },
+ {
+  "unit": "N-DVN-2025-02-20-F3",
+  "ticker": "DVN",
+  "cik": "1090012",
+  "old_asof": "2025-01-02",
+  "new_asof": "2025-02-20",
+  "form": "10-K",
+  "accession": "0000950170-25-022844",
+  "premise": "F3"
+ },
+ {
+  "unit": "N-NKE-2026-07-17-F3",
+  "ticker": "NKE",
+  "cik": "320187",
+  "old_asof": "2026-04-03",
+  "new_asof": "2026-07-17",
+  "form": "10-K",
+  "accession": "0000320187-26-000088",
+  "premise": "F3"
+ },
+ {
+  "unit": "N-FANG-2025-05-09-F2",
+  "ticker": "FANG",
+  "cik": "1539838",
+  "old_asof": "2025-02-28",
+  "new_asof": "2025-05-09",
+  "form": "10-Q",
+  "accession": "0001539838-25-000066",
+  "premise": "F2"
+ },
+ {
+  "unit": "N-CVX-2026-02-26-F3",
+  "ticker": "CVX",
+  "cik": "93410",
+  "old_asof": "2025-11-07",
+  "new_asof": "2026-02-26",
+  "form": "10-K",
+  "accession": "0000093410-26-000078",
+  "premise": "F3"
+ },
+ {
+  "unit": "N-SBUX-2025-01-30-F1",
+  "ticker": "SBUX",
+  "cik": "829224",
+  "old_asof": "2025-01-02",
+  "new_asof": "2025-01-30",
+  "form": "10-Q",
+  "accession": "0000829224-25-000014",
+  "premise": "F1"
+ },
+ {
+  "unit": "N-DASH-2025-11-08-F1",
+  "ticker": "DASH",
+  "cik": "1792789",
+  "old_asof": "2025-08-08",
+  "new_asof": "2025-11-08",
+  "form": "10-Q",
+  "accession": "0001792789-25-000020",
+  "premise": "F1"
+ },
+ {
+  "unit": "N-TER-2025-02-21-F3",
+  "ticker": "TER",
+  "cik": "97210",
+  "old_asof": "2025-01-02",
+  "new_asof": "2025-02-21",
+  "form": "10-K",
+  "accession": "0000950170-25-023784",
+  "premise": "F3"
+ },
+ {
+  "unit": "N-AFG-2025-02-26-F2",
+  "ticker": "AFG",
+  "cik": "1042046",
+  "old_asof": "2025-01-02",
+  "new_asof": "2025-02-26",
+  "form": "10-K",
+  "accession": "0001042046-25-000011",
+  "premise": "F2"
+ },
+ {
+  "unit": "N-VRT-2026-02-15-F3",
+  "ticker": "VRT",
+  "cik": "1674101",
+  "old_asof": "2025-10-24",
+  "new_asof": "2026-02-15",
+  "form": "10-K",
+  "accession": "0001674101-26-000008",
+  "premise": "F3"
+ },
+ {
+  "unit": "N-COR-2026-05-07-F1",
+  "ticker": "COR",
+  "cik": "1140859",
+  "old_asof": "2026-02-06",
+  "new_asof": "2026-05-07",
+  "form": "10-Q",
+  "accession": "0001140859-26-000020",
+  "premise": "F1"
+ },
+ {
+  "unit": "N-SCHW-2025-02-28-F3",
+  "ticker": "SCHW",
+  "cik": "316709",
+  "old_asof": "2025-01-02",
+  "new_asof": "2025-02-28",
+  "form": "10-K",
+  "accession": "0000316709-25-000010",
+  "premise": "F3"
+ },
+ {
+  "unit": "N-ROL-2025-02-15-F3",
+  "ticker": "ROL",
+  "cik": "84839",
+  "old_asof": "2025-01-02",
+  "new_asof": "2025-02-15",
+  "form": "10-K",
+  "accession": "0000084839-25-000024",
+  "premise": "F3"
+ }
+]
