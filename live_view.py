@@ -17,12 +17,12 @@ def render():
     data = json.loads((Path(__file__).parent / "live_season.json").read_text(encoding="utf-8"))
     st.markdown(
         f"보유 544곳의 메모 전제와 코드 해시를 **{data['sealed']}** 공개 저장소에 봉인한 뒤, **그 이후 접수된 공시만** 같은 코드로 채점한 실제 기록입니다. "
-        "전제 상태가 바뀐 건은 사람이 SEC 원문으로 다시 확인했습니다.")
+        "전제 상태가 바뀐 건만 SEC 원문과 대조했고, 변화가 없던 공시는 검수하지 않았습니다. 대조 주체는 건별로 표시합니다.")
     c = st.columns(4)
     c[0].metric("채점한 공시", f"{data['filings_scored']}건")
     c[1].metric("전제 상태 변화", f"{data['status_changes']}건")
     c[2].metric("원문상 실제 변화", f"{data['verified_real']}건")
-    c[3].metric("확인 대기", f"{data['pending_check']}건")
+    c[3].metric("오탐", f"{data['false_alarms']}건")
     st.caption(f"마지막 감시 실행 {data['last_run_utc'][:16].replace('T', ' ')} UTC · 4시간마다 자동 실행")
     for x in sorted(data["catches"], key=lambda c: c["memo"] != "shareholder_return"):
         h = x["human"] or {}
@@ -31,6 +31,10 @@ def render():
             st.markdown(f"접수 {x['accepted_utc'][:16].replace('T', ' ')} UTC → 감지 {x['detected_utc'][:16].replace('T', ' ')} UTC")
             for k in x["changed"]:
                 st.markdown(f"**{esc(h.get('premise', k))}** &nbsp; {pill(x['old'].get(k, ''))} → {pill(x['new'][k])}", unsafe_allow_html=True)
+            sc = x.get("source_check")
+            if sc:
+                st.markdown(f"- 원문 대조: **{sc['verdict']}** — {esc(sc['basis'])} ({sc['by']})")
+            st.markdown(f"- Agent 처리: {x['agent_status']}")
             if h:
                 st.markdown(f"- 숫자: {esc(h['numbers'])}\n- 원문 줄: `{h['source_line']}`\n- 맥락: {esc(h['context'])}\n"
                             f"- 사람 확인: **{h['verdict']}** ({h['checked']}) · [원문 열기]({h['url']})")

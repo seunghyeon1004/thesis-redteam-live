@@ -8,10 +8,13 @@ import streamlit.components.v1 as components
 from demo_core import HOLDINGS, HYPOTHESES, summary_markdown, verify
 from watch_view import render as render_watch
 from live_view import render as render_live_season
+from gate_view import render as render_gate
 
 st.set_page_config(page_title="가설 레드팀 · 투자 전제 감시", layout="wide")
 st.markdown("## 가설 레드팀 · 투자 전제 감시 Agent")
-tab_season, tab_watch, tab_live = st.tabs(["⓪ 봉인 후 실전 채점 (3분기 시즌)", "① 전제 감시 타임라인 (21개월 재생)", "② 지금 검산해 보기 (SEC 실시간)"])
+tab_season, tab_gate, tab_watch, tab_live = st.tabs(["⓪ 봉인 후 실전 채점 (3분기 시즌)", "⓪-1 결정 문서 게이트 (시연)", "① 전제 감시 타임라인 (21개월 재생)", "② 지금 검산해 보기 (SEC 실시간)"])
+with tab_gate:
+    render_gate()
 with tab_season:
     render_live_season()
 with tab_watch:

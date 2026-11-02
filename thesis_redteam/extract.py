@@ -1141,6 +1141,9 @@ def _apply_ttm(
         # must not turn a valid repurchase TTM into an old annual value.
         field_method = "fy_plus_ytd" if latest.get("form") in {"10-Q", "10-Q/A"} and q_rows[field] else "fy_only"
         row = _ttm_record(annual, current, prior, method=field_method)
+        if row is not None and field == "repurchase" and field_method == "fy_only" and latest.get("form") in {"10-Q", "10-Q/A"}:
+            # The latest 10-Q carried no usable repurchase row: an older annual zero is lost evidence, not a refutation.
+            row = {**row, "stale_after_filing": latest.get("accession") or latest.get("accessionNumber") or True}
         extracted[field] = [row] if row is not None else None
 
 
@@ -1335,6 +1338,23 @@ def _preferred_balance_records(
     return selected
 
 
+def _restrict_to_face_tags(match: dict, facts: dict, accession: str) -> None:
+    """A summed plan-tag issuance keeps only tags on the cash-flow face; note-only tags are subsets, not addends."""
+    used, face = match.get('tags_used') or [], set(match.get('presentation_tags') or [])
+    if match.get('presentation') != 'gross' or len(used) < 2 or not face & set(used) or set(used) <= face:
+        return
+    rows = [r for r in _usd_records(_records_for_tags(facts, tuple(t for t in used if t in face),
+                                                      accessions={accession}, cutoff=None, cik=None))
+            if _same_period(r, match)]
+    kept = {r['tag']: r for r in _select_one_per_tag_context(rows)}
+    if not kept:
+        return
+    match['value'] = str(sum(Decimal(r['value']) for r in kept.values()))
+    match['tag'] = '+'.join(kept)
+    match['tags_used'] = list(kept)
+    match['issuance_note'] = 'note-only issuance tags dropped; cash-flow face line governs'
+
+
 def _annotate_cash_presentation(extracted: dict, filings: list[dict] | None, facts: dict, *,
                                 asof: Any, client: SecClient,
                                 before_fetch: Callable[[], None] | None) -> None:
@@ -1390,7 +1410,7 @@ def _annotate_cash_presentation(extracted: dict, filings: list[dict] | None, fac
             label = info.get('presentation_line', '')
             program = (info.get('presentation') == 'gross'
                        and 'PaymentsForRepurchaseOfEquity' in info.get('presentation_tags', [])
-                       and re.search(r'program|common stock', label, re.I)
+                       and re.search(r'program|common (?:stock|shares)|ordinary shares', label, re.I)
                        and not re.search(r'tax|withhold|preferred|noncontrolling|subsidiar', label, re.I))
             if program and not any(r.get('accession') == accession and _same_period(r, source)
                                    for r in extracted.get('repurchase') or []):
@@ -1409,6 +1429,8 @@ def _annotate_cash_presentation(extracted: dict, filings: list[dict] | None, fac
                     continue
                 for match in matches:
                     match.update(info)
+                    if field == 'common_issuance':
+                        _restrict_to_face_tags(match, facts, accession)
                 if not matches and info.get('presentation_change'):
                     missing = {**source, **info, 'field':field, 'primary_document':document}
                     missing.pop('value', None)  # not a numeric component

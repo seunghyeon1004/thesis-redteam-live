@@ -1,10 +1,10 @@
 {
  "sealed": "2026-10-26 (v4)",
- "last_run_utc": "2026-10-27T04:35:03.037132+00:00",
- "filings_scored": 6,
- "status_changes": 2,
- "verified_real": 2,
- "pending_check": 0,
+ "last_run_utc": "2026-11-01T23:00:27.183183+00:00",
+ "filings_scored": 153,
+ "status_changes": 6,
+ "verified_real": 5,
+ "false_alarms": 1,
  "catches": [
   {
    "ticker": "AZO",
@@ -32,6 +32,8 @@
     "url": "https://www.sec.gov/Archives/edgar/data/866787/000110465926118791/azo-20260829x10k.htm",
     "checked": "2026-10-27 원문 손익 요약표 대조"
    },
+   "source_check": null,
+   "agent_status": "비교 날짜 결함으로 첫 실행 미조사, 봉인 코드로 재실행",
    "agent_headline": "AZO 순이익 증가 판정 FALSE → TRUE 전환 (FY2026 10-K 반영)",
    "agent_questions": [
     "10-K의 FY2025 비교 열(2,498,247천 USD)이 이전 10-K의 값과 같은지 확인했는가?",
@@ -68,6 +70,8 @@
     "url": "https://www.sec.gov/Archives/edgar/data/1030894/000103089426000050/cls-20260930.htm",
     "checked": "2026-10-27 원문 현금흐름표·MD&A 대조"
    },
+   "source_check": null,
+   "agent_status": "비교 날짜 결함으로 첫 실행 미조사, 봉인 코드로 재실행",
    "agent_headline": "CLS 순자사주 환원 판정 TRUE→FALSE 전환, 단 보통주 발행 33.9억 달러가 현금 항목인지 불확실",
    "agent_questions": [
     "3,391.3이 현금흐름표의 재무활동 줄인가, 아니면 자본변동표나 주석(합병·전환 등 비현금 발행, 자본 잔액) 숫자인가?",
@@ -75,9 +79,140 @@
     "ProceedsFromIssuanceOfCommonStock 태그와 SBC 플랜 태그의 값 차이(0.3 대 3,391.3)는 어디서 생겼나?"
    ],
    "regenerated": true
+  },
+  {
+   "ticker": "QSR",
+   "memo": "shareholder_return",
+   "form": "10-Q",
+   "accepted_utc": "2026-10-29T20:16:54+00:00",
+   "detected_utc": "2026-10-30T01:49:23.597252+00:00",
+   "old": {
+    "F1": "TRUE",
+    "F2": "TRUE",
+    "F3": "FALSE"
+   },
+   "new": {
+    "F1": "FALSE",
+    "F2": "FALSE",
+    "F3": "FALSE"
+   },
+   "changed": [
+    "F1",
+    "F2"
+   ],
+   "human": null,
+   "source_check": {
+    "verdict": "오탐(F1·F2)",
+    "basis": "10-Q 현금흐름표 Repurchase of RBI common shares and Partnership exchangeable units (444) 9개월. 시스템은 fy_only로 떨어져 FY25 매입 0 사용. 항목명 변경으로 태그 미매칭 추정",
+    "by": "AI 대조, 사람 재확인 전"
+   },
+   "agent_status": "LLM 사용량 한도로 템플릿 대체",
+   "agent_headline": "보통주 발행이 매입을 초과해 순환원 전제 반증",
+   "agent_questions": [
+    "변화가 일시적인 거래인지 지속적인 정책 변화인지 확인했습니까?"
+   ],
+   "regenerated": false
+  },
+  {
+   "ticker": "INTC",
+   "memo": "earnings_quality",
+   "form": "10-Q",
+   "accepted_utc": "2026-10-29T22:50:31+00:00",
+   "detected_utc": "2026-10-30T13:59:55.602179+00:00",
+   "old": {
+    "F1": "TRUE",
+    "F2": "판정불가"
+   },
+   "new": {
+    "F1": "FALSE",
+    "F2": "판정불가"
+   },
+   "changed": [
+    "F1"
+   ],
+   "human": null,
+   "source_check": {
+    "verdict": "실제",
+    "basis": "10-Q Net income (loss) attributable to Intel 9개월 (11,441) vs 324; TTM -12,032 vs +198",
+    "by": "AI 대조, 사람 재확인 전"
+   },
+   "agent_status": "정상 조사",
+   "agent_headline": "INTC \"순이익 증가\" 전제 반증: TTM 순이익 +1.98억 → -120.32억 달러(TRUE→FALSE)",
+   "agent_questions": [
+    "3분기 순손실에 일회성 항목(손상, 구조조정, 투자 평가손실 등)이 얼마나 포함됐는지 10-Q 손익계산서와 주석에서 확인할 것.",
+    "원 메모의 '순이익이 늘었고' 문장이 TTM 기준이었는지, 연간 또는 분기 기준이었는지 확인할 것.",
+    "순손실 속에서 영업현금흐름이 양(+)인 이유(비현금 비용 등)를 현금흐름표에서 확인할 것."
+   ],
+   "regenerated": false
+  },
+  {
+   "ticker": "KVUE",
+   "memo": "shareholder_return",
+   "form": "10-Q",
+   "accepted_utc": "2026-10-30T10:52:00+00:00",
+   "detected_utc": "2026-10-31T02:14:38.966444+00:00",
+   "old": {
+    "F1": "TRUE",
+    "F2": "판정불가",
+    "F3": "FALSE"
+   },
+   "new": {
+    "F1": "FALSE",
+    "F2": "판정불가",
+    "F3": "FALSE"
+   },
+   "changed": [
+    "F1"
+   ],
+   "human": null,
+   "source_check": {
+    "verdict": "실제",
+    "basis": "10-Q 현금흐름표 Purchase of treasury stock — vs (197); FY25 197 → 12개월 0",
+    "by": "AI 대조, 사람 재확인 전"
+   },
+   "agent_status": "숫자 검사 실패로 템플릿 대체",
+   "agent_headline": "메모 전제의 새로운 반증",
+   "agent_questions": [
+    "변화가 일시적인 거래인지 지속적인 정책 변화인지 확인했습니까?"
+   ],
+   "regenerated": false
+  },
+  {
+   "ticker": "ILMN",
+   "memo": "earnings_quality",
+   "form": "10-Q",
+   "accepted_utc": "2026-10-30T20:14:37+00:00",
+   "detected_utc": "2026-10-31T02:16:38.840984+00:00",
+   "old": {
+    "F1": "FALSE",
+    "F2": "TRUE"
+   },
+   "new": {
+    "F1": "TRUE",
+    "F2": "TRUE"
+   },
+   "changed": [
+    "F1"
+   ],
+   "human": null,
+   "source_check": {
+    "verdict": "실제(복구)",
+    "basis": "10-Q Net income 9개월 561 vs 516; TTM 895 vs 703",
+    "by": "AI 대조, 사람 재확인 전"
+   },
+   "agent_status": "정상 조사",
+   "agent_headline": "ILMN 순이익 증가 판정 FALSE→TRUE 전환 (반증 해소, 새 반증 아님)",
+   "agent_questions": [
+    "10-Q(2026-09-27)의 순이익 561(YTD)·516(전년 YTD) 줄이 NetIncomeLoss와 동일 항목인지 원문에서 확인했는가?",
+    "TTM 증가분 192백만 USD 중 2024년 적자 구간 이탈에 따른 기저 효과와 실제 영업 개선은 각각 얼마인가?",
+    "Q2 시점 FALSE 판정의 비교 기간 구성(1,257)이 올바르게 계산되었는지 재검토가 필요한가?"
+   ],
+   "regenerated": false
   }
  ],
  "defects": [
-  "첫 알림의 비교 기준 날짜가 봉인일(10-26) 대신 10-27로 고정 → 설명이 '변화 없음'으로 비어 나옴. 감지·판정은 정상. 같은 봉인 코드로 날짜만 고쳐 설명 재생성, v5에서 수정."
+  "첫 알림 비교 날짜가 10-27로 고정돼 Celestica·AutoZone 설명이 '변화 없음'으로 비어 나옴. 감지는 정상, 봉인 코드로 날짜만 고쳐 재실행. v5 모니터에서 수정.",
+  "QSR: 항목명·태그 변경으로 9개월 매입 $444M을 0으로 판정한 오탐. 봉인 기록은 유지, v5 코드에서 수정.",
+  "QSR 설명 Agent는 LLM 사용량 한도로 실패해 템플릿으로 대체. v5에서 재시도 추가."
  ]
 }

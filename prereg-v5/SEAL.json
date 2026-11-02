@@ -1,0 +1,12 @@
+{
+ "seal_utc": "2026-11-02T01:37:07+00:00",
+ "code_sha256": "7a3942569fec4ecf141e56a8e97ee6449c6584993d61bdfea5704b62dc85dd08",
+ "monitor_sha256": "33320b124a8193103a660a7786fb4569819a666c32d21c7e492fee2a05d377cc",
+ "snapshot_asof": "2026-11-02",
+ "holdings": 544,
+ "memos": [
+  "shareholder_return",
+  "earnings_quality"
+ ],
+ "rule": "Score 10-Q/10-K accepted after seal_utc, checked as of the next UTC day. No code change to thesis_redteam during scoring. Snapshot hash published separately in PREREG.json."
+}

@@ -468,6 +468,8 @@ def evaluate_facts(claims: list[dict], fields: dict) -> list[dict]:
                 row = max(rows, key=lambda r: (r.get('period_end') or '', r.get('filed') or ''))
                 inputs['repurchase'] = row
                 _money(row)
+                if row.get('stale_after_filing') and _number(row['value']) <= 0:
+                    raise ValueError('최신 10-Q에서 매입 줄을 확인하지 못함: 이전 연간 값 0은 반증이 아님')
                 outputs.update(repurchase=row['value'], unit=row['unit'])
                 current = row
                 truth = _number(row['value']) > 0
