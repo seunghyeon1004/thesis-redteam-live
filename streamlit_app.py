@@ -8,7 +8,7 @@ import streamlit.components.v1 as components
 from demo_core import HOLDINGS, HYPOTHESES, summary_markdown, verify
 from watch_view import render as render_watch
 from live_view import render as render_live_season
-from gate_view import render as render_gate
+from gate_tab import render as render_gate
 
 st.set_page_config(page_title="가설 레드팀 · 투자 전제 감시", layout="wide")
 st.markdown("## 가설 레드팀 · 투자 전제 감시 Agent")
