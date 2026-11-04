@@ -1,1 +1,2 @@
 streamlit==1.50.0
+# rebuild 2026-11-04: gate module
