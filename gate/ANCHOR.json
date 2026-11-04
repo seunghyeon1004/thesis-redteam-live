@@ -1,0 +1,9 @@
+{
+ "run": "scenario-20261104",
+ "ledger": "gate/runs/scenario-20261104-ledger.jsonl",
+ "count": 11,
+ "head": "488cf3368c27a2b4fe0ce1a8ad9d45651f9aa0d50796fd6e6f9c4170ad44635c",
+ "chain_ok": true,
+ "written_utc": "2026-11-04T04:17:32+00:00",
+ "note": "The GitHub commit containing this file fixes the head hash in time. Any later edit to the ledger changes the head."
+}

@@ -1,0 +1,267 @@
+[
+ {
+  "request": "POST /reports/CLS-shareholder_return/attach",
+  "body": {},
+  "status": 200,
+  "response": {
+   "report": "CLS-shareholder_return",
+   "ticker": "CLS",
+   "form": "10-Q",
+   "accepted_utc": "2026-10-26T20:26:17+00:00",
+   "findings": [
+    {
+     "id": "CLS-shareholder_return:F2",
+     "premise": "F2",
+     "old": "TRUE",
+     "new": "FALSE",
+     "attached": true,
+     "resolution": null
+    }
+   ],
+   "agent_headline": "CLS 순자사주 환원 판정 TRUE→FALSE 전환, 단 보통주 발행 33.9억 달러가 현금 항목인지 불확실",
+   "source_check": null,
+   "unresolved": [
+    "CLS-shareholder_return:F2"
+   ],
+   "submitted": false
+  }
+ },
+ {
+  "request": "POST /reports/CLS-shareholder_return/submit",
+  "body": {
+   "actor": "담당자A"
+  },
+  "status": 409,
+  "response": {
+   "seq": 2,
+   "ts_utc": "2026-11-04T04:17:31+00:00",
+   "report": "CLS-shareholder_return",
+   "event": "submit_rejected",
+   "data": {
+    "actor": "담당자A",
+    "unresolved": [
+     "CLS-shareholder_return:F2"
+    ]
+   },
+   "prev": "a5f11fcb812b0dc4aa4102306d5781c97e4bda58f3ab493b1ad9aa18bcfb1222",
+   "hash": "996909b7109cd3a2580f679e15bed417a8b2a909ea7198024c6e1b8e45e071c3"
+  }
+ },
+ {
+  "request": "POST /reports/CLS-shareholder_return/resolve",
+  "body": {
+   "finding": "CLS-shareholder_return:F2",
+   "action": "조사 착수",
+   "reason": "10-Q 현금흐름표에서 8/7 공모 현금 유입 $3,391.3M 확인. 일회성 여부와 비중 재검토",
+   "actor": "담당자A"
+  },
+  "status": 200,
+  "response": {
+   "seq": 3,
+   "ts_utc": "2026-11-04T04:17:31+00:00",
+   "report": "CLS-shareholder_return",
+   "event": "resolved",
+   "data": {
+    "finding": "CLS-shareholder_return:F2",
+    "action": "조사 착수",
+    "reason": "10-Q 현금흐름표에서 8/7 공모 현금 유입 $3,391.3M 확인. 일회성 여부와 비중 재검토",
+    "actor": "담당자A"
+   },
+   "prev": "996909b7109cd3a2580f679e15bed417a8b2a909ea7198024c6e1b8e45e071c3",
+   "hash": "3f746aa319e12a179c076f0ef9d8952f9e07309efbc5c409edff8503161d81e2"
+  }
+ },
+ {
+  "request": "POST /reports/CLS-shareholder_return/submit",
+  "body": {
+   "actor": "담당자A"
+  },
+  "status": 200,
+  "response": {
+   "seq": 4,
+   "ts_utc": "2026-11-04T04:17:31+00:00",
+   "report": "CLS-shareholder_return",
+   "event": "submitted",
+   "data": {
+    "actor": "담당자A",
+    "resolved": [
+     "CLS-shareholder_return:F2"
+    ]
+   },
+   "prev": "3f746aa319e12a179c076f0ef9d8952f9e07309efbc5c409edff8503161d81e2",
+   "hash": "28f32c6e5aae40a41393cc8f5012eba43627e746c27006d65386f5285fb235bf"
+  }
+ },
+ {
+  "request": "POST /reports/QSR-shareholder_return/attach",
+  "body": {},
+  "status": 200,
+  "response": {
+   "report": "QSR-shareholder_return",
+   "ticker": "QSR",
+   "form": "10-Q",
+   "accepted_utc": "2026-10-29T20:16:54+00:00",
+   "findings": [
+    {
+     "id": "QSR-shareholder_return:F1",
+     "premise": "F1",
+     "old": "TRUE",
+     "new": "FALSE",
+     "attached": true,
+     "resolution": null
+    },
+    {
+     "id": "QSR-shareholder_return:F2",
+     "premise": "F2",
+     "old": "TRUE",
+     "new": "FALSE",
+     "attached": true,
+     "resolution": null
+    }
+   ],
+   "agent_headline": "보통주 발행이 매입을 초과해 순환원 전제 반증",
+   "source_check": {
+    "verdict": "오탐(F1·F2)",
+    "basis": "10-Q 현금흐름표 Repurchase of RBI common shares and Partnership exchangeable units (444) 9개월. 시스템은 fy_only로 떨어져 FY25 매입 0 사용. 항목명 변경으로 태그 미매칭 추정",
+    "by": "AI 대조, 사람 재확인 전"
+   },
+   "unresolved": [
+    "QSR-shareholder_return:F1",
+    "QSR-shareholder_return:F2"
+   ],
+   "submitted": false
+  }
+ },
+ {
+  "request": "POST /reports/QSR-shareholder_return/submit",
+  "body": {
+   "actor": "담당자B"
+  },
+  "status": 409,
+  "response": {
+   "seq": 7,
+   "ts_utc": "2026-11-04T04:17:31+00:00",
+   "report": "QSR-shareholder_return",
+   "event": "submit_rejected",
+   "data": {
+    "actor": "담당자B",
+    "unresolved": [
+     "QSR-shareholder_return:F1",
+     "QSR-shareholder_return:F2"
+    ]
+   },
+   "prev": "4cf898ebd282ef94b3632c0cf8d2c64ec1f4ac562d64eb679b4a52f9ce62e566",
+   "hash": "59dc78d643731686b88c793dc81e019add80f490ecb9048183a10ec4d7f4f0bd"
+  }
+ },
+ {
+  "request": "POST /reports/QSR-shareholder_return/resolve",
+  "body": {
+   "finding": "QSR-shareholder_return:F1",
+   "action": "기각",
+   "reason": "원문 현금흐름표에 보통주 매입 (444) 존재. 태그 누락에 의한 오탐",
+   "actor": "담당자B"
+  },
+  "status": 200,
+  "response": {
+   "seq": 8,
+   "ts_utc": "2026-11-04T04:17:31+00:00",
+   "report": "QSR-shareholder_return",
+   "event": "resolved",
+   "data": {
+    "finding": "QSR-shareholder_return:F1",
+    "action": "기각",
+    "reason": "원문 현금흐름표에 보통주 매입 (444) 존재. 태그 누락에 의한 오탐",
+    "actor": "담당자B"
+   },
+   "prev": "59dc78d643731686b88c793dc81e019add80f490ecb9048183a10ec4d7f4f0bd",
+   "hash": "47914426a92f25d71ec91f7fe8debde775134916225cd414e4a0f8d056c6b7d1"
+  }
+ },
+ {
+  "request": "POST /reports/QSR-shareholder_return/submit",
+  "body": {
+   "actor": "담당자B"
+  },
+  "status": 409,
+  "response": {
+   "seq": 9,
+   "ts_utc": "2026-11-04T04:17:31+00:00",
+   "report": "QSR-shareholder_return",
+   "event": "submit_rejected",
+   "data": {
+    "actor": "담당자B",
+    "unresolved": [
+     "QSR-shareholder_return:F2"
+    ]
+   },
+   "prev": "47914426a92f25d71ec91f7fe8debde775134916225cd414e4a0f8d056c6b7d1",
+   "hash": "90fcde5fabcc1a0678e9426d05f8c6f05ae359c20112d838f96c96c97bf1f94e"
+  }
+ },
+ {
+  "request": "POST /reports/QSR-shareholder_return/resolve",
+  "body": {
+   "finding": "QSR-shareholder_return:F2",
+   "action": "기각",
+   "reason": "F1과 같은 원인(매입 줄 미인식)",
+   "actor": "담당자B"
+  },
+  "status": 200,
+  "response": {
+   "seq": 10,
+   "ts_utc": "2026-11-04T04:17:31+00:00",
+   "report": "QSR-shareholder_return",
+   "event": "resolved",
+   "data": {
+    "finding": "QSR-shareholder_return:F2",
+    "action": "기각",
+    "reason": "F1과 같은 원인(매입 줄 미인식)",
+    "actor": "담당자B"
+   },
+   "prev": "90fcde5fabcc1a0678e9426d05f8c6f05ae359c20112d838f96c96c97bf1f94e",
+   "hash": "8d243e162068c7a549f23f188495c3246f70e7e57a8a0710b9948375eb5f65e7"
+  }
+ },
+ {
+  "request": "POST /reports/QSR-shareholder_return/submit",
+  "body": {
+   "actor": "담당자B"
+  },
+  "status": 200,
+  "response": {
+   "seq": 11,
+   "ts_utc": "2026-11-04T04:17:31+00:00",
+   "report": "QSR-shareholder_return",
+   "event": "submitted",
+   "data": {
+    "actor": "담당자B",
+    "resolved": [
+     "QSR-shareholder_return:F1",
+     "QSR-shareholder_return:F2"
+    ]
+   },
+   "prev": "8d243e162068c7a549f23f188495c3246f70e7e57a8a0710b9948375eb5f65e7",
+   "hash": "488cf3368c27a2b4fe0ce1a8ad9d45651f9aa0d50796fd6e6f9c4170ad44635c"
+  }
+ },
+ {
+  "request": "DELETE /ledger/verify",
+  "body": null,
+  "status": 405,
+  "response": {
+   "error": "ledger is append-only"
+  }
+ },
+ {
+  "request": "GET /ledger/verify",
+  "body": null,
+  "status": 200,
+  "response": {
+   "ok": true,
+   "first_bad_seq": null,
+   "count": 11,
+   "head": "488cf3368c27a2b4fe0ce1a8ad9d45651f9aa0d50796fd6e6f9c4170ad44635c"
+  }
+ }
+]
